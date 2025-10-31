@@ -16,14 +16,6 @@
 # - Loss computation: PyTorch Loss
 # - parameter updates: PyTorch Optimizer
 
-# pipeline
-# 1. Design model (input size, output size, forward pass)
-# 2. Construct loss and optimizer
-# 3. Training loop
-#   - Forward pass: compute prediction
-#   - Backward pass: gradients
-#   - Update weights
-
 import torch
 import torch.nn as nn
 # simple linear regression
@@ -90,3 +82,52 @@ for epoch in range(n_iters):
         print(f"epoch {epoch+1}: w = {w_value:.3f}, b = {b_value:.3f}, loss = {l:.8f}")
 
 print(f"Prediction after training: f(5) = {float(model(X_test)):.3f}")
+
+
+def compare_optimizers(X, y, epochs=200):
+    optimizers = {
+        'SGD': torch.optim.SGD,
+        'Adam': torch.optim.Adam,
+        'RMSprop': torch.optim.RMSprop,
+        'Adagrad': torch.optim.Adagrad
+    }
+
+    results = {}
+
+    for opt_name, opt_class in optimizers.items():
+        print(f"\nTraining with {opt_name}...")
+
+        # Reset model for each optimizer
+        model = LinearRegression(input_size, output_size)
+        criterion = nn.MSELoss()
+
+        if opt_name == 'SGD':
+            optimizer = opt_class(model.parameters(), lr=0.1)
+        else:
+            optimizer = opt_class(model.parameters(), lr=0.01)
+
+        losses = []
+
+        for epoch in range(epochs):
+            model.train()
+            optimizer.zero_grad()
+
+            outputs = model(X)
+            loss = criterion(outputs, y)
+            loss.backward()
+            optimizer.step()
+
+            losses.append(loss.item())
+
+        results[opt_name] = losses
+        print(f"{opt_name} final loss: {losses[-1]:.4f}")
+
+    return results
+
+
+optimizer_results = compare_optimizers(X, Y)
+
+print("\n" + "="*50)
+print("OPTIMIZER PERFORMANCE SUMMARY:")
+for opt_name, losses in optimizer_results.items():
+    print(f"{opt_name:8} | Initial: {losses[0]:.4f} | Final: {losses[-1]:.4f} | Improvement: {losses[0]-losses[-1]:.4f}")
