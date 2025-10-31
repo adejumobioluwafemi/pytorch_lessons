@@ -42,8 +42,22 @@ print(f"n_samples==> {n_samples}, n_features==> {n_features}")
 input_size = n_features
 output_size = n_features
 
-model = nn.Linear(in_features=input_size, out_features=output_size)
+#model = nn.Linear(in_features=input_size, out_features=output_size)
 
+# custom model
+class LinearRegression(nn.Module):
+
+    def __init__(self, input_dim, output_dim):
+        super(LinearRegression, self).__init__()
+
+        # layers
+
+        self.lin = nn.Linear(input_dim, output_dim)
+
+    def forward(self, x):
+        return self.lin(x)
+
+model = LinearRegression(input_size, output_size)
 print(f"Prediction before training: f(5) = {float(model(X_test)):.3f}")
 
 learning_rate = 0.01
