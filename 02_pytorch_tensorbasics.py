@@ -8,3 +8,5 @@ result = x * 2.0
 print("result on mps", result)
 
 print("result on cpu",result.cpu())
+
+
